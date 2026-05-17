@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.WindowInsetsController
+import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -56,7 +57,7 @@ class OrbotActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        Prefs.testingKindnessMode = false // TODO remove this
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.apply {
                 setSystemBarsAppearance(0, WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS)
@@ -268,6 +269,10 @@ class OrbotActivity : BaseActivity() {
         @SuppressLint("SetTextI18n")
         override fun onReceive(context: Context?, intent: Intent?) {
             val status = intent?.getStringExtra(TorService.EXTRA_STATUS)
+            if (Prefs.testingKindnessMode) {
+                handleKindnessModeConnectionTest(status)
+                return
+            }
             when (intent?.action) {
                 OrbotConstants.LOCAL_ACTION_STATUS -> {
                     if (status != previousReceivedTorStatus) {
@@ -296,6 +301,14 @@ class OrbotActivity : BaseActivity() {
                 }
 
                 else -> {}
+            }
+        }
+
+        private fun handleKindnessModeConnectionTest(torStatus: String?) {
+            Toast.makeText(this@OrbotActivity, torStatus ?: "null", Toast.LENGTH_LONG).show()
+            if (torStatus == TorService.STATUS_ON) {
+                Prefs.snowflakeNeedsQualityCheck = false
+                // TODO alert fragment
             }
         }
     }
@@ -350,6 +363,10 @@ class OrbotActivity : BaseActivity() {
 
         // Make sure this is only shown once per app-start, not on every device rotation.
         private var rootDetectionShown = false
+    }
+
+    fun disconnectOrbotService() {
+        sendIntentToService(TorService.ACTION_STOP)
     }
 
     fun showLog() {

@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.window.layout.WindowMetricsCalculator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.torproject.android.OrbotActivity
 import org.torproject.android.R
 import org.torproject.android.databinding.FragmentTestingBinding
 import org.torproject.android.service.circumvention.Transport
@@ -23,8 +24,9 @@ import kotlin.getValue
 class TestingDialogFragment : DialogFragment() {
 
     private lateinit var mBinding: FragmentTestingBinding
-    val torConnectedViewModel: ConnectViewModel by activityViewModels()
 
+    // TODO handle the NoInternet state here...
+    val torConnectedViewModel: ConnectViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,9 +66,11 @@ class TestingDialogFragment : DialogFragment() {
             val width = metrics.bounds.width()
             val height = metrics.bounds.height()
 
-            val dialogHeight = if (width > height) (height * 0.9f).toInt() else (height * 0.33f).toInt()
+            val dialogHeight =
+                if (width > height) (height * 0.9f).toInt() else (height * 0.33f).toInt()
 
-            val dialogWidth = if (width > height) (width * 0.33f).toInt() else (width * 0.9f).toInt()
+            val dialogWidth =
+                if (width > height) (width * 0.33f).toInt() else (width * 0.9f).toInt()
 
             window.setLayout(dialogWidth, dialogHeight)
             window.setBackgroundDrawableResource(android.R.color.transparent)
@@ -84,18 +88,31 @@ class TestingDialogFragment : DialogFragment() {
             return
         }
 
-        if (torConnectedViewModel.uiState.value == ConnectUiState.On  && Prefs.transport == Transport.NONE && Prefs.outboundProxy.first == null) {
+        if (torConnectedViewModel.uiState.value == ConnectUiState.On && Prefs.transport == Transport.NONE && Prefs.outboundProxy.first == null) {
             Prefs.snowflakeNeedsQualityCheck = false
             mBinding.btContinue.callOnClick()
             return
         }
 
         lifecycleScope.launch {
-            // TODO: Replace with proper start of Tor (VPN vs. expert mode?)
+            // TODO handle no internet
+            Prefs.testingKindnessMode = true
+
+            val orbotActivity: OrbotActivity = requireActivity() as OrbotActivity
+            if (torConnectedViewModel.uiState.value !in listOf(
+                    ConnectUiState.Off,
+                    ConnectUiState.Stopping
+                )
+            ) {
+                // TODO find way to spin OrbotService backup
+                orbotActivity.disconnectOrbotService()
+                delay(250)
+                TestDirectConnectionService.startTorServiceTest(orbotActivity)
+            }
+            //  TODO: Replace with proper start of Tor (VPN vs. expert mode?)
             //  and wait until successful connect or 90 second timeout.
             delay(3000)
 
-            Prefs.snowflakeNeedsQualityCheck = false
 
             mBinding.boxTesting.visibility = View.GONE
             mBinding.boxApproved.visibility = View.VISIBLE

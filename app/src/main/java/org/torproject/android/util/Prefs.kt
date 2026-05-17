@@ -24,6 +24,7 @@ object Prefs {
     private const val PREF_LAST_SNOWFLAKE_QUALITY_CHECK = "pref_last_snowflake_quality_check"
     private const val PREF_EXIT_NODES = "pref_exit_nodes"
     private const val PREF_BE_A_SNOWFLAKE = "pref_be_a_snowflake"
+    private const val PREF_TESTING_KINDNESS_CONNECTION = "pref_kindness_test"
     private const val PREF_SHOW_SNOWFLAKE_MSG = "pref_show_snowflake_proxy_msg"
     private const val PREF_BE_A_SNOWFLAKE_LIMIT_WIFI = "pref_be_a_snowflake_limit_wifi"
     private const val PREF_BE_A_SNOWFLAKE_LIMIT_CHARGING = "pref_be_a_snowflake_limit_charing"
@@ -112,6 +113,10 @@ object Prefs {
         return cr?.getPrefBoolean(PREF_DETECT_ROOT, true) ?: true
     }
 
+    var testingKindnessMode: Boolean
+        get() = cr?.getPrefBoolean(PREF_TESTING_KINDNESS_CONNECTION, false) ?: false
+        set(value) = cr?.putPref(PREF_TESTING_KINDNESS_CONNECTION, value) ?: Unit
+
     fun beSnowflakeProxy(): Boolean {
         return cr?.getPrefBoolean(PREF_BE_A_SNOWFLAKE) ?: false
     }
@@ -171,7 +176,10 @@ object Prefs {
             return last <= System.currentTimeMillis() - 24 * 60 * 60 * 1000
         }
         set(value) {
-            cr?.putPref(PREF_LAST_SNOWFLAKE_QUALITY_CHECK, if (value) 0 else System.currentTimeMillis())
+            cr?.putPref(
+                PREF_LAST_SNOWFLAKE_QUALITY_CHECK,
+                if (value) 0 else System.currentTimeMillis()
+            )
         }
 
     fun startOnBoot(): Boolean {
@@ -230,8 +238,7 @@ object Prefs {
 
                 return try {
                     Pair(URI(config), null)
-                }
-                catch (_: URISyntaxException) {
+                } catch (_: URISyntaxException) {
                     Pair(null, config)
                 }
             }
