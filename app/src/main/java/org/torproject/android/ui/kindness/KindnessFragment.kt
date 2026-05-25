@@ -1,117 +1,234 @@
 package org.torproject.android.ui.kindness
 
+import IPtProxy.IPtProxy
 import android.app.AlertDialog
+import android.content.ComponentName
+import android.content.Intent
+import android.content.ServiceConnection
+import android.content.res.ColorStateList
 import android.os.Bundle
+import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
-import androidx.appcompat.widget.SwitchCompat
+import androidx.core.net.toUri
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 import org.torproject.android.R
-import org.torproject.android.service.circumvention.BuiltInBridges
-import org.torproject.android.service.circumvention.Transport
+import org.torproject.android.databinding.FragmentKindnessBinding
+import org.torproject.android.service.circumvention.CensoredCountries
 import org.torproject.android.util.Prefs
-import java.util.Locale
-import kotlin.collections.contains
 
 class KindnessFragment : Fragment() {
 
-    private lateinit var tvAllTimeTotal: TextView
-    private lateinit var tvWeeklyTotal: TextView
-    private lateinit var swVolunteerMode: SwitchCompat
-    private lateinit var btnActionActivate: Button
-    private lateinit var pnlActivate: View
-    private lateinit var pnlStatus: View
+    private lateinit var mBinding: FragmentKindnessBinding
+    private var mService: SnowflakeProxyService? = null
+    private var mBound = false
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            val binder = service as SnowflakeProxyService.LocalBinder
+            mService = binder.getService()
+            mBound = true
+            observeNatType()
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            mBound = false
+            mService = null
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_kindness, container, false)
-        tvAllTimeTotal = view.findViewById(R.id.tvAlltimeTotal)
-        tvWeeklyTotal = view.findViewById(R.id.tvWeeklyTotal)
-        swVolunteerMode = view.findViewById(R.id.swVolunteerMode)
-        btnActionActivate = view.findViewById(R.id.btnActionActivate)
-        pnlActivate = view.findViewById(R.id.panel_kindness_activate)
-        pnlStatus = view.findViewById(R.id.panel_kindness_status)
-        getErrorStringIfAny()?.let {
-            Prefs.setBeSnowflakeProxy(false)
-        }
-        swVolunteerMode.isChecked = Prefs.beSnowflakeProxy()
-        swVolunteerMode.setOnCheckedChangeListener { _, isChecked ->
+    ): View {
+        mBinding = FragmentKindnessBinding.inflate(inflater)
+
+        mBinding.swVolunteerMode.isChecked = Prefs.beSnowflakeProxy()
+        mBinding.swVolunteerMode.setOnCheckedChangeListener { _, isChecked ->
             Prefs.setBeSnowflakeProxy(isChecked)
-            showPanelStatus(isChecked)
             activity?.let {
                 if (isChecked) {
                     SnowflakeProxyService.startSnowflakeProxyForegroundService(it)
                 } else {
                     SnowflakeProxyService.stopSnowflakeProxyForegroundService(it)
+
+                    updateNatTypeUi(IPtProxy.NATUnknown)
                 }
             }
         }
 
-        view.findViewById<View>(R.id.ivGear).setOnClickListener {
-            KindnessConfigBottomSheet.openKindnessSettings(requireActivity())
+        mBinding.rowUsageLimits.setOnClickListener {
+            KindnessConfigBottomSheet.show(parentFragmentManager)
         }
 
-        view.findViewById<View>(R.id.swVolunteerAdjust)
-            .setOnClickListener { KindnessConfigBottomSheet.openKindnessSettings(requireActivity()) }
+        updateNatTypeUi(IPtProxy.NATUnknown)
 
-        btnActionActivate.setOnClickListener {
-            getErrorStringIfAny()?.let {
-                showDisabledDialog(it)
-                return@setOnClickListener
+        mBinding.rowProxyQuality.setOnClickListener {
+            if (mService?.natType?.value == IPtProxy.NATRestricted) {
+                showQualityHint()
             }
-            swVolunteerMode.isChecked = true
         }
 
-        showPanelStatus(Prefs.beSnowflakeProxy())
-        return view
-    }
-
-    private fun getErrorStringIfAny(): Int? {
-        val country = Prefs.bridgeCountry?.lowercase(Locale.getDefault())
-        if (BuiltInBridges.dnsCountries.contains(country))
-            return R.string.kindness_mode_cant_run_in_your_country
-        if (Prefs.useVpn() && Prefs.transport != Transport.NONE)
-            R.string.kindness_mode_cant_run_with_bridge
-        if (!Prefs.hasDirectConnected) {
-            return R.string.kindness_never_had_a_direct_connection
+        mBinding.btnActionActivate.setOnClickListener {
+            TestingDialogFragment.show(parentFragmentManager)
         }
-        return null
+
+        if (CensoredCountries.isKindnessModeAvailableForCountry()) {
+            mBinding.btnActionActivate.isEnabled = false
+
+            // set text explaining that kindness mode isn't available from the user's country
+            mBinding.tvActivateInstructions.setText(R.string.kindness_mode_unsupported_country)
+
+            // set the activate button to be gray, making it not the primary button
+            ViewCompat.setBackgroundTintList(
+                mBinding.btnActionActivate,
+                ColorStateList.valueOf(resources.getColor(R.color.orbot_btn_disable_grey, null))
+            )
+            ViewCompat.setBackgroundTintList(
+                mBinding.btnActionLearnMore,
+                ColorStateList.valueOf(resources.getColor(R.color.orbot_btn_enabled_purple, null))
+            )
+        }
+
+        mBinding.btnActionLearnMore.setOnClickListener {
+            val i = Intent(Intent.ACTION_VIEW, "https://orbot.app/kindness".toUri())
+            val pm = context?.packageManager
+
+            if (pm != null && i.resolveActivity(pm) != null) {
+                startActivity(i)
+            }
+        }
+
+        showPanelStatus(!Prefs.snowflakeNeedsQualityCheck)
+
+        parentFragmentManager.setFragmentResultListener(
+            KindnessConfigBottomSheet.KEY_CONFIG_CHANGED,
+            viewLifecycleOwner
+        ) { _, _ ->
+            updateUsageLimitsUi()
+        }
+
+        parentFragmentManager.setFragmentResultListener(
+            TestingDialogFragment.KEY_RESULT,
+            viewLifecycleOwner
+        ) { _, bundle ->
+
+            if (bundle.getBoolean(TestingDialogFragment.KEY_RESULT)) {
+                if (!Prefs.snowflakeNeedsQualityCheck) {
+                    mBinding.swVolunteerMode.isChecked = true
+                    showPanelStatus(true)
+                }
+            }
+        }
+
+        return mBinding.root
     }
 
-    private fun showDisabledDialog(msg: Int) {
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.kindness_mode_cant_start)
-            .setMessage(msg)
-            .setPositiveButton(android.R.string.ok, null)
-            .show()
+    override fun onStart() {
+        super.onStart()
+
+        // TODO: We need this, to receive the proxy quality, but on the other hand, this
+        //  will unintentionally start the SnowflakeProxyService, which we don't want, because
+        //  it will automatically start SnowflakeProxy if there are no Wi-Fi/battery limits.
+        //  -> hence a redesign of the SnowflakeProxyService seems to await us.
+
+//        context?.let {
+//            it.bindService(SnowflakeProxyService.getIntent(it), connection, Context.BIND_AUTO_CREATE)
+//        }
     }
 
     override fun onResume() {
         super.onResume()
-        // updates these values when user returns to screen after running snowflake proxy for some time
-        tvAllTimeTotal.text = "${Prefs.snowflakesServed}"
-        tvWeeklyTotal.text = "${Prefs.snowflakesServedWeekly}"
+
+        // Updates these values when user returns to screen after running snowflake proxy for some time.
+
+        updateUsageLimitsUi()
+
+        mBinding.tvAlltimeTotal.text = "${Prefs.snowflakesServed}"
+        mBinding.tvWeeklyTotal.text = "${Prefs.snowflakesServedWeekly}"
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        if (mBound) {
+            context?.unbindService(connection)
+            mBound = false
+        }
+    }
+
+    private fun observeNatType() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mService?.natType?.collect { natType ->
+                    updateNatTypeUi(natType)
+                }
+            }
+        }
+    }
+
+    private fun updateNatTypeUi(natType: String) {
+        mBinding.tvProxyQualityStatus.text = when (natType) {
+            IPtProxy.NATUnknown -> getString(R.string.kindness_proxy_quality_unknown)
+            IPtProxy.NATRestricted -> getString(R.string.kindness_proxy_quality_restricted)
+            IPtProxy.NATUnrestricted -> getString(R.string.kindness_proxy_quality_unrestricted)
+            else -> natType
+        }
+
+        if (natType == IPtProxy.NATRestricted) {
+            mBinding.redDot.visibility = View.VISIBLE
+            mBinding.chevron2.visibility = View.VISIBLE
+        } else {
+            mBinding.redDot.visibility = View.GONE
+            mBinding.chevron2.visibility = View.GONE
+        }
+    }
+
+    private fun updateUsageLimitsUi() {
+        mBinding.tvUsageLimitsStatus.text =
+            getString(
+                if (Prefs.limitSnowflakeProxyingWifi() || Prefs.limitSnowflakeProxyingCharging())
+                    R.string.kindness_usage_limits_status_on
+                else R.string.kindness_usage_limits_status_off
+            )
+    }
+
+    private fun showQualityHint() {
+        val context = context ?: return
+
+        AlertDialog.Builder(context)
+            .setTitle(R.string.kindness_quality_upgrade_title)
+            .setMessage(
+                String.format(
+                    "%s\n\n%s",
+                    getString(R.string.kindness_quality_upgrade_line1),
+                    getString(R.string.kindness_quality_upgrade_line2)
+                )
+            )
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     private fun showPanelStatus(isActivated: Boolean) {
         val duration = 250L
         if (isActivated) {
-            pnlActivate.animate().alpha(0f).setDuration(0).withEndAction {
-                pnlActivate.visibility = View.GONE
+            mBinding.panelKindnessActivate.animate().alpha(0f).setDuration(0).withEndAction {
+                mBinding.panelKindnessActivate.visibility = View.GONE
             }
 
-            pnlStatus.visibility = View.VISIBLE
-            pnlStatus.animate().alpha(1f).duration = duration
+            mBinding.panelKindnessStatus.visibility = View.VISIBLE
+            mBinding.panelKindnessStatus.animate().alpha(1f).duration = duration
         } else {
-            pnlActivate.visibility = View.VISIBLE
-            pnlActivate.animate().alpha(1f).duration = duration
+            mBinding.panelKindnessActivate.visibility = View.VISIBLE
+            mBinding.panelKindnessActivate.animate().alpha(1f).duration = duration
 
-            pnlStatus.animate().alpha(0f).setDuration(0).withEndAction {
-                pnlStatus.visibility = View.GONE
+            mBinding.panelKindnessStatus.animate().alpha(0f).setDuration(0).withEndAction {
+                mBinding.panelKindnessStatus.visibility = View.GONE
             }
         }
     }
