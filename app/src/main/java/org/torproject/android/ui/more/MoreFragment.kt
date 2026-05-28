@@ -20,8 +20,14 @@ import org.torproject.android.R
 import org.torproject.android.service.util.sendIntentToService
 import org.torproject.android.service.OrbotConstants
 import org.torproject.android.service.OrbotService
+import org.torproject.android.ui.AboutNexusActivity
 import org.torproject.android.ui.AppManagerActivity
+import org.torproject.android.ui.ContactActivity
+import org.torproject.android.ui.FeedbackActivity
 import org.torproject.android.ui.OrbotMenuAction
+import org.torproject.android.ui.PrivacyPolicyActivity
+import org.torproject.android.ui.SupportActivity
+import org.torproject.android.ui.TermsActivity
 import org.torproject.android.ui.v3onionservice.OnionServiceActivity
 import org.torproject.android.ui.v3onionservice.clientauth.ClientAuthActivity
 
@@ -102,10 +108,22 @@ class MoreFragment : Fragment() {
                 startActivity(Intent(requireActivity(), ClientAuthActivity::class.java))
             },
             OrbotMenuAction(R.string.menu_about, R.drawable.ic_about) {
-                AboutDialogFragment().show(
-                    requireActivity().supportFragmentManager,
-                    AboutDialogFragment.Companion.TAG
-                )
+                startActivity(Intent(requireActivity(), AboutNexusActivity::class.java))
+            },
+            OrbotMenuAction(R.string.menu_contact_us, R.drawable.ic_about) {
+                startActivity(Intent(requireActivity(), ContactActivity::class.java))
+            },
+            OrbotMenuAction(R.string.menu_support, R.drawable.ic_faq) {
+                startActivity(Intent(requireActivity(), SupportActivity::class.java))
+            },
+            OrbotMenuAction(R.string.menu_feedback, R.drawable.ic_log) {
+                startActivity(Intent(requireActivity(), FeedbackActivity::class.java))
+            },
+            OrbotMenuAction(R.string.menu_privacy_policy, R.drawable.ic_shield) {
+                startActivity(Intent(requireActivity(), PrivacyPolicyActivity::class.java))
+            },
+            OrbotMenuAction(R.string.menu_terms_of_service, R.drawable.ic_settings_gear) {
+                startActivity(Intent(requireActivity(), TermsActivity::class.java))
             },
             OrbotMenuAction(R.string.menu_exit, R.drawable.ic_exit) { doExit() }
         )

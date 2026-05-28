@@ -77,6 +77,36 @@
             android:name=".ui.v3onionservice.clientauth.ClientAuthActivity"
             android:label="@string/v3_client_auth_activity_title" />
 
+        <activity
+            android:name=".ui.ContactActivity"
+            android:label="@string/contact_title"
+            android:theme="@style/OrbotActivityTheme" />
+
+        <activity
+            android:name=".ui.SupportActivity"
+            android:label="@string/support_title"
+            android:theme="@style/OrbotActivityTheme" />
+
+        <activity
+            android:name=".ui.FeedbackActivity"
+            android:label="@string/feedback_title"
+            android:theme="@style/OrbotActivityTheme" />
+
+        <activity
+            android:name=".ui.PrivacyPolicyActivity"
+            android:label="@string/privacy_policy_title"
+            android:theme="@style/OrbotActivityTheme" />
+
+        <activity
+            android:name=".ui.TermsActivity"
+            android:label="@string/terms_title"
+            android:theme="@style/OrbotActivityTheme" />
+
+        <activity
+            android:name=".ui.AboutNexusActivity"
+            android:label="@string/about_nexus_title"
+            android:theme="@style/OrbotActivityTheme" />
+
         <provider
             android:name=".ui.v3onionservice.OnionServiceContentProvider"
             android:authorities="${applicationId}.ui.v3onionservice"
