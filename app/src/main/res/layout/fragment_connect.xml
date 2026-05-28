@@ -1,128 +1,342 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:backgroundTint="@color/new_background">
+    android:layout_height="match_parent"
+    android:background="@color/nexus_background">
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:progressTint="@color/progress_bar_purple"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@id/ivStatus"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:progress="33"
-        tools:visibility="visible" />
+        android:paddingBottom="16dp">
 
-    <ImageView
-        android:id="@+id/ivStatus"
-        android:layout_width="148dp"
-        android:layout_height="166dp"
-        android:layout_marginTop="20dp"
-        android:contentDescription="Orbie"
-        android:src="@drawable/toroff"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="HardcodedText" />
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:progressTint="@color/nexus_accent"
+            android:visibility="invisible"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:progress="33"
+            tools:visibility="visible" />
 
-    <ImageView
-        android:id="@+id/ivShadow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:contentDescription="Shadow"
-        android:src="@drawable/orbieshadow"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ivStatus"
-        tools:ignore="HardcodedText,ImageContrastCheck" />
+        <TextView
+            android:id="@+id/tvAppName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.12"
+            android:text="NEXUS_vpn"
+            android:textColor="@color/nexus_accent"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/progressBar" />
 
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="sans-serif-black"
-        android:text="@string/secure_your_connection_title"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
-        android:textColor="@android:color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivShadow" />
+        <TextView
+            android:id="@+id/tvTagline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:letterSpacing="0.08"
+            android:text="SECURE ANONYMOUS TUNNEL PROTOCOL"
+            android:textColor="@color/nexus_text_secondary"
+            android:textSize="10sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvAppName" />
 
-    <TextView
-        android:id="@+id/tvSubtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:gravity="center_horizontal"
-        android:paddingStart="@dimen/activity_horizontal_large_margin"
-        android:paddingEnd="@dimen/activity_horizontal_large_margin"
-        android:text="@string/hide_apps"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-        android:textColor="@android:color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+        <TextView
+            android:id="@+id/tvNetworkScope"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/network_scope_label"
+            android:textColor="@color/nexus_accent"
+            android:textSize="9sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTagline" />
 
-    <Button
-        android:id="@+id/btnStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:background="@drawable/btn_shape_round"
-        android:backgroundTint="@color/orbot_btn_enabled_purple"
-        android:maxLines="3"
-        android:paddingStart="@dimen/button_horizontal_large_margin"
-        android:paddingTop="@dimen/button_horizontal_small_margin"
-        android:paddingEnd="@dimen/button_horizontal_large_margin"
-        android:paddingBottom="@dimen/button_horizontal_small_margin"
-        android:text="@string/btn_start_vpn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvSubtitle"
-        tools:enabled="false" />
+        <ImageView
+            android:id="@+id/ivStatus"
+            android:layout_width="120dp"
+            android:layout_height="140dp"
+            android:layout_marginTop="20dp"
+            android:contentDescription="Status"
+            android:src="@drawable/toroff"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvNetworkScope"
+            tools:ignore="HardcodedText" />
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/swSmartConnect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="@string/run_smart_connect_"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnStart"
-        app:switchPadding="8dp" />
+        <ImageView
+            android:id="@+id/ivShadow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:contentDescription="Shadow"
+            android:src="@drawable/orbieshadow"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivStatus"
+            tools:ignore="HardcodedText,ImageContrastCheck" />
 
-    <TextView
-        android:id="@+id/tvConfigure"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/btn_configure"
-        android:textAllCaps="true"
-        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/swSmartConnect" />
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif-black"
+            android:text="@string/secure_your_connection_title"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+            android:textColor="@android:color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivShadow" />
 
-    <ListView
-        android:id="@+id/lvConnected"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="24dp"
-        android:dividerHeight="1dp"
-        android:drawSelectorOnTop="true"
-        android:visibility="invisible"
-        app:layout_constraintTop_toBottomOf="@id/tvConfigure"
-        tools:visibility="gone" />
+        <TextView
+            android:id="@+id/tvSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:gravity="center_horizontal"
+            android:paddingStart="@dimen/activity_horizontal_large_margin"
+            android:paddingEnd="@dimen/activity_horizontal_large_margin"
+            android:text="@string/hide_apps"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="@color/nexus_text_secondary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <Button
+            android:id="@+id/btnStart"
+            android:layout_width="220dp"
+            android:layout_height="52dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/btn_shape_round"
+            android:backgroundTint="@color/nexus_accent"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.1"
+            android:maxLines="2"
+            android:paddingStart="@dimen/button_horizontal_large_margin"
+            android:paddingTop="@dimen/button_horizontal_small_margin"
+            android:paddingEnd="@dimen/button_horizontal_large_margin"
+            android:paddingBottom="@dimen/button_horizontal_small_margin"
+            android:text="@string/btn_start_vpn"
+            android:textColor="#0B0F19"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvSubtitle"
+            tools:enabled="false" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swSmartConnect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/run_smart_connect_"
+            android:textColor="@color/nexus_text_secondary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnStart"
+            app:switchPadding="8dp" />
+
+        <TextView
+            android:id="@+id/tvConfigure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/btn_configure"
+            android:textAllCaps="true"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:textColor="@color/nexus_accent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/swSmartConnect" />
+
+        <ListView
+            android:id="@+id/lvConnected"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="24dp"
+            android:dividerHeight="1dp"
+            android:drawSelectorOnTop="true"
+            android:visibility="invisible"
+            app:layout_constraintTop_toBottomOf="@id/tvConfigure"
+            tools:visibility="gone" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardTunnelInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="16dp"
+            app:cardBackgroundColor="@color/nexus_card_bg"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lvConnected">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="10dp"
+                        android:background="@color/nexus_accent" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:text="TUNNEL INFO"
+                        android:textColor="@color/nexus_accent"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@color/nexus_card_border" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="6dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/protocol_label"
+                        android:textColor="@color/nexus_text_secondary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/protocol_value"
+                        android:textColor="@color/nexus_text_primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="6dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/port_label"
+                        android:textColor="@color/nexus_text_secondary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/port_value"
+                        android:textColor="@color/nexus_text_primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/encryption_label"
+                        android:textColor="@color/nexus_text_secondary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/encryption_value"
+                        android:textColor="@color/nexus_text_primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+            android:id="@+id/llFooter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/cardTunnelInfo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginEnd="6dp"
+                android:layout_gravity="center_vertical"
+                android:background="#FF3B3B"
+                android:backgroundTint="@color/nexus_live_red" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LIVE"
+                android:textColor="@color/nexus_live_red"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.15"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/made_by"
+                android:textColor="@color/nexus_text_secondary"
+                android:textSize="10sp" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
